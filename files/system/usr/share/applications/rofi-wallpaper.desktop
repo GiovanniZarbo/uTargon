@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=Selettore Sfondi
+Comment=Seleziona lo sfondo del desktop e aggiorna i colori
+GenericName=Wallpaper Selector
+Exec=rofi-wallpaper
+Icon=preferences-desktop-wallpaper
+Terminal=false
+Type=Application
+Categories=Utility;Settings;
+StartupNotify=false
+

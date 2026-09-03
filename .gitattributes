@@ -1,0 +1,10 @@
+# Force LF line endings for Linux scripts and configs
+* text=auto eol=lf
+*.sh text eol=lf
+*.rasi text eol=lf
+*.desktop text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+files/system/usr/bin/* text eol=lf
+files/scripts/* text eol=lf
+

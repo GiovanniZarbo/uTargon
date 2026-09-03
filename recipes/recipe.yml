@@ -6,7 +6,7 @@ name: u-targon
 description: This is my personal OS image.
 
 # the base image to build on top of (FROM) and the version tag to use
-base-image: ghcr.io/ublue-os/silverblue-main
+base-image: ghcr.io/ublue-os/kinoite-main
 image-version: latest # You can pin to a specific version of Fedora as well
 
 # module configuration, executed in order
@@ -21,10 +21,19 @@ modules:
     repos:
       copr:
         - atim/starship
+        - peridot-augustus/plasma-panel-colorizer
+        - luisbocanegra/kde-material-you-colors
     install:
       packages:
         - micro
         - starship
+        - fastfetch
+        - btop
+        - kitty
+        - plasma-panel-colorizer
+        - kde-material-you-colors
+        - rofi-wayland
+        - matugen
     remove:
       packages:
         # example: removing firefox (in favor of the flatpak)
@@ -38,8 +47,15 @@ modules:
         scope: system
         # If no repo information is specified, Flathub will be used by default
         install: # system flatpaks we want all users to have and not remove
-          - org.mozilla.firefox
-          - org.gnome.Loupe
-      - scope: user # Also add Flathub user repo, but no user packages
+          - app.zen_browser.zen
+          - it.mijorus.gearlever
+          - io.github.giantpinkrobots.flatsweep
+          - com.github.wwmm.easyeffects
+
 
   - type: signing # this sets up the proper policy & signing files for signed images to work fully
+
+  - type: os-release
+    properties:
+      NAME: uTargon
+      PRETTY_NAME: uTargon

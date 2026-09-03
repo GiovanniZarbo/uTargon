@@ -1,0 +1,6 @@
+[services][rofi.desktop]
+_launch=Meta+Space,none,Rofi
+
+[services][rofi-wallpaper.desktop]
+_launch=Meta+W,none,Selettore Sfondi
+

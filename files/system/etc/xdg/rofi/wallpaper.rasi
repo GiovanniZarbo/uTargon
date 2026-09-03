@@ -1,0 +1,100 @@
+/* ===================================================================
+ * Tema Griglia per il Selettore Sfondi di Rofi - Stile TokyoNight
+ * =================================================================== */
+
+configuration {
+    show-icons:                 true;
+    font:                       "JetBrainsMono Nerd Font 10, Cantarell 10, Sans 10";
+}
+
+* {
+    bg-main:                    #1a1b26f2;
+    bg-input:                   #24283bf2;
+    bg-card:                    #24283b80;
+    bg-selected:                #7aa2f7;
+    fg-main:                    #c0caf5;
+    fg-muted:                   #565f89;
+    fg-selected:                #15161e;
+    border-col:                 #7aa2f7;
+
+    background-color:           transparent;
+    text-color:                 @fg-main;
+    margin:                     0;
+    padding:                    0;
+}
+
+window {
+    transparency:               "real";
+    background-color:           @bg-main;
+    border:                     2px solid;
+    border-color:               @border-col;
+    border-radius:              18px;
+    width:                      72%;
+    height:                     64%;
+    padding:                    24px;
+    location:                   center;
+    anchor:                     center;
+}
+
+mainbox {
+    children:                   [ inputbar, listview ];
+    spacing:                    18px;
+}
+
+inputbar {
+    background-color:           @bg-input;
+    border-radius:              12px;
+    padding:                    12px 18px;
+    children:                   [ prompt, entry ];
+    spacing:                    12px;
+}
+
+prompt {
+    text-color:                 @border-col;
+}
+
+entry {
+    placeholder:                "Cerca sfondo per nome...";
+    placeholder-color:          @fg-muted;
+    text-color:                 @fg-main;
+}
+
+listview {
+    columns:                    4;
+    lines:                      2;
+    cycle:                      true;
+    dynamic:                    true;
+    layout:                     vertical;
+    flow:                       horizontal;
+    spacing:                    16px;
+    scrollbar:                  false;
+}
+
+element {
+    orientation:                vertical;
+    children:                   [ element-icon, element-text ];
+    padding:                    12px;
+    border-radius:              14px;
+    background-color:           @bg-card;
+    spacing:                    8px;
+}
+
+element selected {
+    background-color:           @bg-selected;
+    text-color:                 @fg-selected;
+}
+
+element-icon {
+    size:                       130px;
+    horizontal-align:           0.5;
+    vertical-align:             0.5;
+    border-radius:              8px;
+}
+
+element-text {
+    horizontal-align:           0.5;
+    vertical-align:             0.5;
+    text-color:                 inherit;
+    font:                       "Sans 10";
+}
+

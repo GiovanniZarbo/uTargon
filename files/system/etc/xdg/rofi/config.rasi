@@ -1,0 +1,116 @@
+/* ===================================================================
+ * Configurazione Principale Rofi - Stile TokyoNight per uTargon
+ * =================================================================== */
+
+configuration {
+    modi:                       "drun,run,window";
+    show-icons:                 true;
+    display-drun:               "󰄛  App";
+    display-run:                "  Esegui";
+    display-window:             "  Finestre";
+    drun-display-format:        "{name}";
+    font:                       "JetBrainsMono Nerd Font 10, Cantarell 11, Sans 10";
+}
+
+* {
+    bg-main:                    #1a1b26f2;
+    bg-input:                   #24283bf2;
+    bg-selected:                #7aa2f7;
+    fg-main:                    #c0caf5;
+    fg-muted:                   #565f89;
+    fg-selected:                #15161e;
+    border-col:                 #7aa2f7;
+
+    background-color:           transparent;
+    text-color:                 @fg-main;
+    margin:                     0;
+    padding:                    0;
+}
+
+window {
+    transparency:               "real";
+    background-color:           @bg-main;
+    border:                     2px solid;
+    border-color:               @border-col;
+    border-radius:              16px;
+    width:                      42%;
+    padding:                    24px;
+    location:                   center;
+    anchor:                     center;
+}
+
+mainbox {
+    children:                   [ inputbar, message, listview, mode-switcher ];
+    spacing:                    16px;
+}
+
+inputbar {
+    background-color:           @bg-input;
+    border-radius:              12px;
+    padding:                    12px 16px;
+    children:                   [ prompt, entry ];
+    spacing:                    12px;
+}
+
+prompt {
+    text-color:                 @border-col;
+}
+
+entry {
+    placeholder:                "Cerca applicazioni o comandi...";
+    placeholder-color:          @fg-muted;
+    text-color:                 @fg-main;
+}
+
+message {
+    background-color:           @bg-input;
+    border-radius:              8px;
+    padding:                    8px;
+}
+
+listview {
+    lines:                      8;
+    columns:                    1;
+    cycle:                      true;
+    dynamic:                    true;
+    scrollbar:                  false;
+    spacing:                    6px;
+}
+
+element {
+    padding:                    10px 14px;
+    border-radius:              10px;
+    children:                   [ element-icon, element-text ];
+    spacing:                    12px;
+}
+
+element selected {
+    background-color:           @bg-selected;
+    text-color:                 @fg-selected;
+}
+
+element-icon {
+    size:                       26px;
+}
+
+element-text {
+    vertical-align:             0.5;
+    text-color:                 inherit;
+}
+
+mode-switcher {
+    spacing:                    10px;
+}
+
+button {
+    background-color:           @bg-input;
+    text-color:                 @fg-muted;
+    padding:                    8px 14px;
+    border-radius:              8px;
+}
+
+button selected {
+    background-color:           @border-col;
+    text-color:                 @fg-selected;
+}
+
