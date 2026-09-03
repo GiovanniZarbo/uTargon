@@ -22,7 +22,8 @@ modules:
       copr:
         - atim/starship
         - peridot-augustus/plasma-panel-colorizer
-        - luisbocanegra/kde-material-you-colors
+      repofiles:
+        - https://download.opensuse.org/repositories/home:luisbocanegra/Fedora_44/home:luisbocanegra.repo 
     install:
       packages:
         - micro
