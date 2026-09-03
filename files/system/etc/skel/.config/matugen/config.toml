@@ -14,3 +14,19 @@ output_path = '~/.config/gtk-3.0/gtk.css'
 input_path = '~/.config/matugen/templates/gtk-colors.css'
 output_path = '~/.config/gtk-4.0/gtk.css'
 
+[templates.fluent_folders]
+input_path = '~/.config/matugen/templates/fluent-folders.sh'
+output_path = '~/.config/matugen/generated/fluent-folders.sh'
+colors_to_compare = [
+    { name = "purple", color = "#b185db" },
+    { name = "pink",   color = "#f7768e" },
+    { name = "red",    color = "#f73b5a" },
+    { name = "orange", color = "#ff9e3b" },
+    { name = "yellow", color = "#e0af68" },
+    { name = "green",  color = "#9ece6a" },
+    { name = "teal",   color = "#7dcfff" },
+    { name = "blue",   color = "#7aa2f7" },
+    { name = "grey",   color = "#565f89" },
+]
+compare_to = "{{ colors.primary.default.hex }}"
+post_hook = 'bash ~/.config/matugen/generated/fluent-folders.sh || true'

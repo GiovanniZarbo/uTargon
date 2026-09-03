@@ -10,10 +10,10 @@ curl -Lo /tmp/icone_temp/Fluent-icon-theme.tar.gz \
 tar -xf /tmp/icone_temp/Fluent-icon-theme.tar.gz -C /tmp/icone_temp
 
 # 3. Usa lo script di installazione ufficiale del tema per generare
-#    la variante "purple" (crea Fluent-purple, Fluent-purple-light, Fluent-purple-dark)
+#    tutte le varianti colore (blue, purple, pink, red, orange, yellow, green, teal, grey)
 #    direttamente nella cartella di sistema delle icone
 cd /tmp/icone_temp/Fluent-icon-theme-master
-./install.sh -d /usr/share/icons -n Fluent purple
+./install.sh -a -d /usr/share/icons -n Fluent
 
 # 4. Pulisce la cartella temporanea
 rm -rf /tmp/icone_temp
