@@ -25,8 +25,11 @@ fi
 # 2. Applica Look & Feel / Stili / Decorazioni finestre
 
 if command -v kde-material-you-colors &>/dev/null && [[ -f "$DEFAULT_WALLPAPER" ]]; then
-    (kde-material-you-colors --color "$DEFAULT_WALLPAPER" &>/dev/null &) || true
+    (kde-material-you-colors --file "$DEFAULT_WALLPAPER" &>/dev/null &) || true
 fi
+
+# Attendi che il pannello sia effettivamente disegnato
+sleep 5
 
 # Applica icona kickoff
 if command -v qdbus &>/dev/null; then
@@ -39,6 +42,7 @@ if command -v qdbus &>/dev/null; then
                 if (widgets[j].type === 'org.kde.plasma.kickoff') {
                     widgets[j].currentConfigGroup = ['General'];
                     widgets[j].writeConfig('icon', '/usr/share/pixmaps/start-menu-lain.png');
+                    widgets[j].reloadConfig();
                 }
             }
         }
@@ -50,6 +54,9 @@ if command -v plasma-apply-cursortheme &>/dev/null; then
 fi
 
 if command -v kwriteconfig6 &>/dev/null; then
+    # Imposta esplicitamente il cursore nei config (fallback)
+    kwriteconfig6 --file kcminputrc --group Mouse --key cursorTheme "ArcDusk-cursors"
+    
     # Stile plasma e widget
     kwriteconfig6 --file kdeglobals --group Icons --key Theme "Fluent-purple-dark"
     kwriteconfig6 --file kdeglobals --group KDE --key widgetStyle "Breeze"
@@ -60,7 +67,7 @@ if command -v kwriteconfig6 &>/dev/null; then
     kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key library "org.kde.kwin.aurorae.v2"
     kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key theme "__aurorae__svg__Utterly-Round-Dark-Solid"
     kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key BorderSize "Tiny"
-    kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key ButtonsOnLeft ""
+    kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key ButtonsOnLeft --delete
     kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key ButtonsOnRight "IAX"
 
     # Scorciatoie: Disattiva Overview su Meta+W per evitare conflitti
@@ -99,6 +106,7 @@ if command -v qdbus &>/dev/null; then
                 var widget = p.addWidget("luisbocanegra.panel.colorizer");
                 widget.currentConfigGroup = ["General"];
                 widget.writeConfig("lastPreset", "/usr/share/plasma/plasmoids/luisbocanegra.panel.colorizer/contents/ui/presets/Skeuomorphic 2");
+                widget.reloadConfig();
             }
         }
     ' 2>/dev/null || true

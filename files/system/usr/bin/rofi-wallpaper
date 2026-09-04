@@ -193,6 +193,7 @@ if command -v qdbus &>/dev/null; then
                 if (widgets[j].type === 'org.kde.plasma.kickoff') {
                     widgets[j].currentConfigGroup = ['General'];
                     widgets[j].writeConfig('icon', '${KICKOFF_ICON}');
+                    widgets[j].reloadConfig();
                 }
             }
         }
@@ -201,7 +202,7 @@ fi
 
 # 6. Aggiorna colori dinamici (kde-material-you-colors e matugen)
 if command -v kde-material-you-colors &>/dev/null; then
-    (kde-material-you-colors --color "$CHOSEN_PATH" &>/dev/null &) 2>/dev/null || true
+    (kde-material-you-colors --file "$CHOSEN_PATH" &>/dev/null &) 2>/dev/null || true
 fi
 
 if command -v matugen &>/dev/null; then
