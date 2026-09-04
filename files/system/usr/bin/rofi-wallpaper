@@ -175,6 +175,30 @@ fi
 qdbus org.kde.KGlobalSettings /KGlobalSettings org.kde.KGlobalSettings.notifyChange 1 0 2>/dev/null || true
 rm -f "$HOME/.cache/icon-cache.kcache" 2>/dev/null || true
 
+# 5.5 Cambia icona di Kickoff (Start Menu) in base al nome dello sfondo
+KICKOFF_ICON="start-here-kde"
+if [[ "${CHOSEN_NAME,,}" == *"lain"* ]]; then
+    KICKOFF_ICON="/usr/share/pixmaps/start-menu-lain.png"
+elif [[ "${CHOSEN_NAME,,}" == *"madoka"* ]]; then
+    KICKOFF_ICON="/usr/share/pixmaps/start-menu-madoka.png"
+fi
+
+if command -v qdbus &>/dev/null; then
+    qdbus org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript "
+        var allPanels = panels();
+        for (var i = 0; i < allPanels.length; i++) {
+            var p = allPanels[i];
+            var widgets = p.widgets();
+            for (var j = 0; j < widgets.length; j++) {
+                if (widgets[j].type === 'org.kde.plasma.kickoff') {
+                    widgets[j].currentConfigGroup = ['General'];
+                    widgets[j].writeConfig('icon', '${KICKOFF_ICON}');
+                }
+            }
+        }
+    " 2>/dev/null || true
+fi
+
 # 6. Aggiorna colori dinamici (kde-material-you-colors e matugen)
 if command -v kde-material-you-colors &>/dev/null; then
     (kde-material-you-colors --color "$CHOSEN_PATH" &>/dev/null &) 2>/dev/null || true

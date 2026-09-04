@@ -10,9 +10,9 @@ curl -Lo /tmp/cursori_temp/ArcDusk-Cursors.tar.gz \
 # 2. Estrae l'archivio
 tar -xf /tmp/cursori_temp/ArcDusk-Cursors.tar.gz -C /tmp/cursori_temp
 
-# 3. Installa i cursori già compilati nella cartella di sistema
-mkdir -p /usr/share/icons
-cp -r /tmp/cursori_temp/ArcDusk-Cursors-main/dist/* /usr/share/icons/
+# 3. Usa lo script di installazione ufficiale
+cd /tmp/cursori_temp/ArcDusk-Cursors-main
+./install.sh -d /usr/share/icons
 
 # 4. Pulisce la cartella temporanea
 rm -rf /tmp/cursori_temp

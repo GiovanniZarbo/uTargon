@@ -47,6 +47,7 @@ modules:
     scripts:
       - install-icons.sh
       - install-cursors.sh
+      - fix-permissions.sh
 
   - type: default-flatpaks
     configurations:

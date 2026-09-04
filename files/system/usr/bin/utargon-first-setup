@@ -11,6 +11,9 @@ if [[ -f "$INIT_FLAG" ]]; then
 fi
 
 # Attendi che plasmashell e kwin siano attivi
+until qdbus org.kde.plasmashell /PlasmaShell &>/dev/null; do
+    sleep 1
+done
 sleep 3
 
 # 1. Applica lo sfondo di default se presente
@@ -20,8 +23,26 @@ if [[ -f "$DEFAULT_WALLPAPER" ]] && command -v plasma-apply-wallpaperimage &>/de
 fi
 
 # 2. Applica Look & Feel / Stili / Decorazioni finestre
-if command -v plasma-apply-colorscheme &>/dev/null; then
-    plasma-apply-colorscheme TokyoNight 2>/dev/null || true
+
+if command -v kde-material-you-colors &>/dev/null && [[ -f "$DEFAULT_WALLPAPER" ]]; then
+    (kde-material-you-colors --color "$DEFAULT_WALLPAPER" &>/dev/null &) || true
+fi
+
+# Applica icona kickoff
+if command -v qdbus &>/dev/null; then
+    qdbus org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript "
+        var allPanels = panels();
+        for (var i = 0; i < allPanels.length; i++) {
+            var p = allPanels[i];
+            var widgets = p.widgets();
+            for (var j = 0; j < widgets.length; j++) {
+                if (widgets[j].type === 'org.kde.plasma.kickoff') {
+                    widgets[j].currentConfigGroup = ['General'];
+                    widgets[j].writeConfig('icon', '/usr/share/pixmaps/start-menu-lain.png');
+                }
+            }
+        }
+    " 2>/dev/null || true
 fi
 
 if command -v plasma-apply-cursortheme &>/dev/null; then
@@ -38,9 +59,9 @@ if command -v kwriteconfig6 &>/dev/null; then
     # Decorazione finestre Utterly-Round-Dark-Solid
     kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key library "org.kde.kwin.aurorae.v2"
     kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key theme "__aurorae__svg__Utterly-Round-Dark-Solid"
-    kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key BorderSize "Normal"
-    kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key ButtonsOnLeft "XIA"
-    kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key ButtonsOnRight ""
+    kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key BorderSize "Tiny"
+    kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key ButtonsOnLeft ""
+    kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key ButtonsOnRight "IAX"
 
     # Scorciatoie: Disattiva Overview su Meta+W per evitare conflitti
     kwriteconfig6 --file kglobalshortcutsrc --group kwin --key "Overview" "none,Meta+W,Toggle Overview"
@@ -60,7 +81,7 @@ if command -v qdbus &>/dev/null; then
     qdbus org.kde.KGlobalSettings /KGlobalSettings org.kde.KGlobalSettings.notifyChange 1 0 2>/dev/null || true
 fi
 
-# 3. Aggiunge Plasma Panel Colorizer al pannello di default se non presente
+# 3. Aggiunge Plasma Panel Colorizer al pannello di default se non presente e applica Skeuomorphic 2
 if command -v qdbus &>/dev/null; then
     qdbus org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript '
         var allPanels = panels();
@@ -69,13 +90,15 @@ if command -v qdbus &>/dev/null; then
             var widgets = p.widgets();
             var hasColorizer = false;
             for (var j = 0; j < widgets.length; j++) {
-                if (widgets[j].type === "org.kde.plasma.panelcolorizer" || widgets[j].type === "luisbocanegra.panel.colorizer") {
+                if (widgets[j].type === "luisbocanegra.panel.colorizer") {
                     hasColorizer = true;
                     break;
                 }
             }
             if (!hasColorizer) {
-                p.addWidget("org.kde.plasma.panelcolorizer");
+                var widget = p.addWidget("luisbocanegra.panel.colorizer");
+                widget.currentConfigGroup = ["General"];
+                widget.writeConfig("lastPreset", "/usr/share/plasma/plasmoids/luisbocanegra.panel.colorizer/contents/ui/presets/Skeuomorphic 2");
             }
         }
     ' 2>/dev/null || true
