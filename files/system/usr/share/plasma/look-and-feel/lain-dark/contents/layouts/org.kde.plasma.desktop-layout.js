@@ -49,7 +49,7 @@ var layout = {
                         "/General": {
                             "favoritesDisplay": "1",
                             "favoritesPortedToKAstats": "true",
-                            "icon": "/usr/share/pixmaps/start-menu-madoka.png",
+                            "icon": "/usr/share/pixmaps/start-menu-lain.png",
                             "systemFavorites": "suspend\\,hibernate\\,reboot\\,shutdown"
                         }
                     },

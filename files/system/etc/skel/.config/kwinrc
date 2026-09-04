@@ -5,6 +5,7 @@ Rows=1
 [org.kde.kdecoration2]
 BorderSize=Tiny
 BorderSizeAuto=false
+ButtonsOnLeft=
 ButtonsOnRight=IAX
 CloseOnDoubleClickOnMenu=false
 library=org.kde.kwin.aurorae.v2

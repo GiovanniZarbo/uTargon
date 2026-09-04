@@ -12,11 +12,15 @@ defaultLightLookAndFeel=lain-dark
 defaultDarkLookAndFeel=lain-dark
 widgetStyle=Breeze
 
+[Mouse]
+cursorTheme=ArcDusk-cursors
+cursorSize=24
+
 [org.kde.kdecoration2]
-BorderSize=Normal
+BorderSize=Tiny
 BorderSizeAuto=false
-ButtonsOnLeft=XIA
-ButtonsOnRight=
+ButtonsOnLeft=
+ButtonsOnRight=IAX
 CloseOnDoubleClickOnMenu=false
 library=org.kde.kwin.aurorae.v2
 theme=__aurorae__svg__Utterly-Round-Dark-Solid

@@ -171,20 +171,33 @@ if command -v gsettings &>/dev/null; then
     gsettings set org.gnome.desktop.interface icon-theme "$DETECTED_THEME" 2>/dev/null || true
 fi
 
-# Notifica KDE del cambio tema icone e pulisce cache
-qdbus org.kde.KGlobalSettings /KGlobalSettings org.kde.KGlobalSettings.notifyChange 1 0 2>/dev/null || true
-rm -f "$HOME/.cache/icon-cache.kcache" 2>/dev/null || true
-
-# 5.5 Cambia icona di Kickoff (Start Menu) in base al nome dello sfondo
-KICKOFF_ICON="start-here-kde"
-if [[ "${CHOSEN_NAME,,}" == *"lain"* ]]; then
-    KICKOFF_ICON="/usr/share/pixmaps/start-menu-lain.png"
-elif [[ "${CHOSEN_NAME,,}" == *"madoka"* ]]; then
-    KICKOFF_ICON="/usr/share/pixmaps/start-menu-madoka.png"
+# Rileva l'eseguibile corretto di qdbus (Plasma 6 usa qdbus6)
+QDBUS_BIN=""
+if command -v qdbus6 &>/dev/null; then
+    QDBUS_BIN="qdbus6"
+elif command -v qdbus &>/dev/null; then
+    QDBUS_BIN="qdbus"
+elif command -v qdbus-qt6 &>/dev/null; then
+    QDBUS_BIN="qdbus-qt6"
 fi
 
-if command -v qdbus &>/dev/null; then
-    qdbus org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript "
+# Notifica KDE del cambio tema icone e pulisce cache
+if [[ -n "$QDBUS_BIN" ]]; then
+    "$QDBUS_BIN" org.kde.KGlobalSettings /KGlobalSettings org.kde.KGlobalSettings.notifyChange 1 0 2>/dev/null || true
+fi
+rm -f "$HOME/.cache/icon-cache.kcache" 2>/dev/null || true
+
+# 5.5 Cambia icona di Kickoff (Start Menu) in base al wallpaper (Lain o Madoka)
+TARGET_CHECK="${CHOSEN_NAME,,} ${CHOSEN_PATH,,}"
+KICKOFF_ICON="/usr/share/pixmaps/start-menu-lain.png"
+if [[ "$TARGET_CHECK" == *"madoka"* ]]; then
+    KICKOFF_ICON="/usr/share/pixmaps/start-menu-madoka.png"
+elif [[ "$TARGET_CHECK" == *"lain"* ]]; then
+    KICKOFF_ICON="/usr/share/pixmaps/start-menu-lain.png"
+fi
+
+if [[ -n "$QDBUS_BIN" ]]; then
+    "$QDBUS_BIN" org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript "
         var allPanels = panels();
         for (var i = 0; i < allPanels.length; i++) {
             var p = allPanels[i];

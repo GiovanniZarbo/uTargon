@@ -7,6 +7,5 @@ Terminal=false
 Icon=preferences-desktop-theme
 Categories=Utility;
 X-KDE-autostart-phase=2
-X-KDE-autostart-condition=kde-material-you-colors:true
 StartupNotify=false
 

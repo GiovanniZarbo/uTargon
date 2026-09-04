@@ -2,8 +2,8 @@
 ActiveTextColor=235,235,235
 Animation=0
 InactiveTextColor=215,215,215
-LeftButtons=XIA
-RightButtons=
+LeftButtons=
+RightButtons=IAX
 Shadow=false
 TextShadowOffsetX=1
 TextShadowOffsetY=1

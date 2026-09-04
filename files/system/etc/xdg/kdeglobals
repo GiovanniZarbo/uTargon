@@ -2,7 +2,8 @@
 Theme=Fluent-purple-dark
 
 [Mouse]
-CursorTheme=ArcDusk-cursors
+cursorTheme=ArcDusk-cursors
+cursorSize=24
 
 [General]
 ColorScheme=TokyoNight

@@ -12,7 +12,16 @@ tar -xf /tmp/cursori_temp/ArcDusk-Cursors.tar.gz -C /tmp/cursori_temp
 
 # 3. Usa lo script di installazione ufficiale
 cd /tmp/cursori_temp/ArcDusk-Cursors-main
-./install.sh -d /usr/share/icons
+./install.sh
 
-# 4. Pulisce la cartella temporanea
+# 4. Imposta ArcDusk-cursors come default di sistema (/usr/share/icons/default/index.theme)
+mkdir -p /usr/share/icons/default
+cat << 'EOF' > /usr/share/icons/default/index.theme
+[Icon Theme]
+Name=Default
+Comment=Default Cursor Theme
+Inherits=ArcDusk-cursors
+EOF
+
+# 5. Pulisce la cartella temporanea
 rm -rf /tmp/cursori_temp

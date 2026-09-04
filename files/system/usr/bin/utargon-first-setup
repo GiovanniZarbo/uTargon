@@ -10,11 +10,26 @@ if [[ -f "$INIT_FLAG" ]]; then
     exit 0
 fi
 
-# Attendi che plasmashell e kwin siano attivi
-until qdbus org.kde.plasmashell /PlasmaShell &>/dev/null; do
+# Rileva l'eseguibile corretto di qdbus (Plasma 6 usa qdbus6)
+QDBUS_BIN=""
+if command -v qdbus6 &>/dev/null; then
+    QDBUS_BIN="qdbus6"
+elif command -v qdbus &>/dev/null; then
+    QDBUS_BIN="qdbus"
+elif command -v qdbus-qt6 &>/dev/null; then
+    QDBUS_BIN="qdbus-qt6"
+fi
+
+# Attendi che plasmashell e kwin siano attivi (massimo 20 secondi)
+WAITED=0
+while [[ $WAITED -lt 20 ]]; do
+    if [[ -n "$QDBUS_BIN" ]] && "$QDBUS_BIN" org.kde.plasmashell /PlasmaShell &>/dev/null; then
+        break
+    fi
     sleep 1
+    ((WAITED++))
 done
-sleep 3
+sleep 4
 
 # 1. Applica lo sfondo di default se presente
 DEFAULT_WALLPAPER="/usr/share/wallpapers/LainDark/contents/images/2560x1440.jpg"
@@ -22,18 +37,14 @@ if [[ -f "$DEFAULT_WALLPAPER" ]] && command -v plasma-apply-wallpaperimage &>/de
     plasma-apply-wallpaperimage "$DEFAULT_WALLPAPER" 2>/dev/null || true
 fi
 
-# 2. Applica Look & Feel / Stili / Decorazioni finestre
-
+# 2. Genera palette colori dinamica con kde-material-you-colors
 if command -v kde-material-you-colors &>/dev/null && [[ -f "$DEFAULT_WALLPAPER" ]]; then
     (kde-material-you-colors --file "$DEFAULT_WALLPAPER" &>/dev/null &) || true
 fi
 
-# Attendi che il pannello sia effettivamente disegnato
-sleep 5
-
-# Applica icona kickoff
-if command -v qdbus &>/dev/null; then
-    qdbus org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript "
+# Applica icona kickoff a tema Lain (sostituisce icona Windows 11 di Fluent)
+if [[ -n "$QDBUS_BIN" ]]; then
+    "$QDBUS_BIN" org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript "
         var allPanels = panels();
         for (var i = 0; i < allPanels.length; i++) {
             var p = allPanels[i];
@@ -49,13 +60,17 @@ if command -v qdbus &>/dev/null; then
     " 2>/dev/null || true
 fi
 
+# Applica cursore ArcDusk
 if command -v plasma-apply-cursortheme &>/dev/null; then
     plasma-apply-cursortheme ArcDusk-cursors 2>/dev/null || true
 fi
 
 if command -v kwriteconfig6 &>/dev/null; then
-    # Imposta esplicitamente il cursore nei config (fallback)
+    # Imposta esplicitamente il cursore nei config utente (kcminputrc e kdeglobals)
     kwriteconfig6 --file kcminputrc --group Mouse --key cursorTheme "ArcDusk-cursors"
+    kwriteconfig6 --file kcminputrc --group Mouse --key cursorSize "24"
+    kwriteconfig6 --file kdeglobals --group Mouse --key cursorTheme "ArcDusk-cursors"
+    kwriteconfig6 --file kdeglobals --group Mouse --key cursorSize "24"
     
     # Stile plasma e widget
     kwriteconfig6 --file kdeglobals --group Icons --key Theme "Fluent-purple-dark"
@@ -63,11 +78,11 @@ if command -v kwriteconfig6 &>/dev/null; then
     kwriteconfig6 --file kdeglobals --group General --key accentColorFromWallpaper "true"
     kwriteconfig6 --file plasmarc --group Theme --key name "default"
 
-    # Decorazione finestre Utterly-Round-Dark-Solid
+    # Decorazione finestre Utterly-Round-Dark-Solid (a destra e Tiny)
     kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key library "org.kde.kwin.aurorae.v2"
     kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key theme "__aurorae__svg__Utterly-Round-Dark-Solid"
     kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key BorderSize "Tiny"
-    kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key ButtonsOnLeft --delete
+    kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key ButtonsOnLeft ""
     kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key ButtonsOnRight "IAX"
 
     # Scorciatoie: Disattiva Overview su Meta+W per evitare conflitti
@@ -82,15 +97,15 @@ if command -v kwriteconfig6 &>/dev/null; then
     kwriteconfig6 --file kglobalshortcutsrc --group "rofi-wallpaper.desktop" --key "_launch" "Meta+W,none,Selettore Sfondi"
 fi
 
-# Ricarica configurazione KWin
-if command -v qdbus &>/dev/null; then
-    qdbus org.kde.KWin /KWin org.kde.KWin.reconfigure 2>/dev/null || true
-    qdbus org.kde.KGlobalSettings /KGlobalSettings org.kde.KGlobalSettings.notifyChange 1 0 2>/dev/null || true
+# Ricarica configurazione KWin e impostazioni globali
+if [[ -n "$QDBUS_BIN" ]]; then
+    "$QDBUS_BIN" org.kde.KWin /KWin org.kde.KWin.reconfigure 2>/dev/null || true
+    "$QDBUS_BIN" org.kde.KGlobalSettings /KGlobalSettings org.kde.KGlobalSettings.notifyChange 1 0 2>/dev/null || true
 fi
 
 # 3. Aggiunge Plasma Panel Colorizer al pannello di default se non presente e applica Skeuomorphic 2
-if command -v qdbus &>/dev/null; then
-    qdbus org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript '
+if [[ -n "$QDBUS_BIN" ]]; then
+    "$QDBUS_BIN" org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript '
         var allPanels = panels();
         for (var i = 0; i < allPanels.length; i++) {
             var p = allPanels[i];
@@ -106,6 +121,7 @@ if command -v qdbus &>/dev/null; then
                 var widget = p.addWidget("luisbocanegra.panel.colorizer");
                 widget.currentConfigGroup = ["General"];
                 widget.writeConfig("lastPreset", "/usr/share/plasma/plasmoids/luisbocanegra.panel.colorizer/contents/ui/presets/Skeuomorphic 2");
+                widget.writeConfig("preset", "Skeuomorphic 2");
                 widget.reloadConfig();
             }
         }
