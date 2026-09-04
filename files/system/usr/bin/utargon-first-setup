@@ -1,0 +1,93 @@
+#!/usr/bin/env bash
+
+# utargon-first-setup - Inizializzazione automatica al primo login per nuovi utenti
+# Applica lo sfondo di default, decorazioni finestre, scorciatoie Super+Spazio / Super+W,
+# stile Brezza adattivo e aggiunge Plasma Panel Colorizer con il preset Skeuomorphic 2.
+
+INIT_FLAG="$HOME/.config/utargon-initialized"
+
+if [[ -f "$INIT_FLAG" ]]; then
+    exit 0
+fi
+
+# Attendi che plasmashell e kwin siano attivi
+sleep 3
+
+# 1. Applica lo sfondo di default se presente
+DEFAULT_WALLPAPER="/usr/share/wallpapers/LainDark/contents/images/2560x1440.jpg"
+if [[ -f "$DEFAULT_WALLPAPER" ]] && command -v plasma-apply-wallpaperimage &>/dev/null; then
+    plasma-apply-wallpaperimage "$DEFAULT_WALLPAPER" 2>/dev/null || true
+fi
+
+# 2. Applica Look & Feel / Stili / Decorazioni finestre
+if command -v plasma-apply-colorscheme &>/dev/null; then
+    plasma-apply-colorscheme TokyoNight 2>/dev/null || true
+fi
+
+if command -v plasma-apply-cursortheme &>/dev/null; then
+    plasma-apply-cursortheme ArcDusk-cursors 2>/dev/null || true
+fi
+
+if command -v kwriteconfig6 &>/dev/null; then
+    # Stile plasma e widget
+    kwriteconfig6 --file kdeglobals --group Icons --key Theme "Fluent-purple-dark"
+    kwriteconfig6 --file kdeglobals --group KDE --key widgetStyle "Breeze"
+    kwriteconfig6 --file kdeglobals --group General --key accentColorFromWallpaper "true"
+    kwriteconfig6 --file plasmarc --group Theme --key name "default"
+
+    # Decorazione finestre Utterly-Round-Dark-Solid
+    kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key library "org.kde.kwin.aurorae.v2"
+    kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key theme "__aurorae__svg__Utterly-Round-Dark-Solid"
+    kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key BorderSize "Normal"
+    kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key ButtonsOnLeft "XIA"
+    kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key ButtonsOnRight ""
+
+    # Scorciatoie: Disattiva Overview su Meta+W per evitare conflitti
+    kwriteconfig6 --file kglobalshortcutsrc --group kwin --key "Overview" "none,Meta+W,Toggle Overview"
+
+    # Scorciatoia Super+Spazio per Rofi
+    kwriteconfig6 --file kglobalshortcutsrc --group "rofi.desktop" --key "_k_friendly_name" "Rofi"
+    kwriteconfig6 --file kglobalshortcutsrc --group "rofi.desktop" --key "_launch" "Meta+Space,none,Rofi"
+
+    # Scorciatoia Super+W per Selettore Sfondi
+    kwriteconfig6 --file kglobalshortcutsrc --group "rofi-wallpaper.desktop" --key "_k_friendly_name" "Selettore Sfondi"
+    kwriteconfig6 --file kglobalshortcutsrc --group "rofi-wallpaper.desktop" --key "_launch" "Meta+W,none,Selettore Sfondi"
+fi
+
+# Ricarica configurazione KWin
+if command -v qdbus &>/dev/null; then
+    qdbus org.kde.KWin /KWin org.kde.KWin.reconfigure 2>/dev/null || true
+    qdbus org.kde.KGlobalSettings /KGlobalSettings org.kde.KGlobalSettings.notifyChange 1 0 2>/dev/null || true
+fi
+
+# 3. Aggiunge Plasma Panel Colorizer al pannello di default se non presente
+if command -v qdbus &>/dev/null; then
+    qdbus org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript '
+        var allPanels = panels();
+        for (var i = 0; i < allPanels.length; i++) {
+            var p = allPanels[i];
+            var widgets = p.widgets();
+            var hasColorizer = false;
+            for (var j = 0; j < widgets.length; j++) {
+                if (widgets[j].type === "org.kde.plasma.panelcolorizer" || widgets[j].type === "luisbocanegra.panel.colorizer") {
+                    hasColorizer = true;
+                    break;
+                }
+            }
+            if (!hasColorizer) {
+                p.addWidget("org.kde.plasma.panelcolorizer");
+            }
+        }
+    ' 2>/dev/null || true
+fi
+
+# 4. Assicura che i template Matugen vengano generati se matugen è installato
+if command -v matugen &>/dev/null && [[ -f "$DEFAULT_WALLPAPER" ]]; then
+    (matugen image "$DEFAULT_WALLPAPER" 2>/dev/null &) || true
+fi
+
+# Contrassegna l'inizializzazione come completata
+touch "$INIT_FLAG"
+
+exit 0
+

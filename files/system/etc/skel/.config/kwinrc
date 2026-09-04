@@ -1,0 +1,13 @@
+[Desktops]
+Number=2
+Rows=1
+
+[org.kde.kdecoration2]
+BorderSize=Normal
+BorderSizeAuto=false
+ButtonsOnLeft=XIA
+ButtonsOnRight=
+CloseOnDoubleClickOnMenu=false
+library=org.kde.kwin.aurorae.v2
+theme=__aurorae__svg__Utterly-Round-Dark-Solid
+

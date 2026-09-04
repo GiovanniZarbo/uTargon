@@ -35,6 +35,7 @@ modules:
         - kde-material-you-colors
         - rofi-wayland
         - matugen
+        - python3-pillow
     remove:
       packages:
         # example: removing firefox (in favor of the flatpak)

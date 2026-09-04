@@ -13,8 +13,8 @@ configuration {
 }
 
 * {
-    bg-main:                    #1a1b26f2;
-    bg-input:                   #24283bf2;
+    bg-main:                    rgba(26, 27, 38, 0.95);
+    bg-input:                   rgba(36, 40, 59, 0.95);
     bg-selected:                #7aa2f7;
     fg-main:                    #c0caf5;
     fg-muted:                   #565f89;

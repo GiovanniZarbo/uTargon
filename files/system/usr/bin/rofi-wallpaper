@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 
-# rofi-wallpaper - Selettore sfondi con anteprima grafica per Rofi & KDE Plasma
-# Applica lo sfondo tramite plasma-apply-wallpaperimage e innesca l'aggiornamento
-# dei colori dinamici tramite kde-material-you-colors.
+# rofi-wallpaper - Selettore sfondi grafico con Rofi per uTargon (KDE Plasma 6)
+# - Applica lo sfondo con l'animazione nativa di KDE Plasma
+# - Calcola la tonalità dominante del wallpaper e applica direttamente la
+#   variante di colore del tema icone Fluent corrispondente (Dolphin, desktop, GTK)
+# - Aggiorna la palette dinamica tramite kde-material-you-colors e matugen
 
 set -o pipefail
 
@@ -20,7 +22,6 @@ declare -a WALLPAPER_ICONS=()
 declare -a WALLPAPER_PATHS=()
 declare -A SEEN_PATHS=()
 
-# Funzione per aggiungere un wallpaper alla lista evitando duplicati
 add_wallpaper() {
     local name="$1"
     local icon="$2"
@@ -30,7 +31,6 @@ add_wallpaper() {
         return
     fi
 
-    # Normalizza il percorso per evitare duplicati
     local real_target
     real_target="$(readlink -f "$target" 2>/dev/null || echo "$target")"
 
@@ -44,22 +44,18 @@ add_wallpaper() {
     WALLPAPER_PATHS+=("$real_target")
 }
 
-# 1. Scansione delle cartelle
+# 1. Scansione delle cartelle sfondi
 for dir in "${WALLPAPER_DIRS[@]}"; do
     if [[ ! -d "$dir" ]]; then
         continue
     fi
 
-    # Se siamo in /usr/share/wallpapers (o cartelle con pacchetti KDE wallpaper)
     for entry in "$dir"/*; do
         if [[ -d "$entry" ]]; then
-            # Controlla se è un pacchetto KDE con contents/images
             local_img=""
             if [[ -d "$entry/contents/images" ]]; then
-                # Cerca la migliore risoluzione disponibile
                 local_img="$(find "$entry/contents/images" -maxdepth 1 -type f \( -iname "*.jpg" -o -iname "*.png" -o -iname "*.webp" \) 2>/dev/null | sort -Vr | head -n 1)"
             fi
-            # O se ha screenshot.png come anteprima
             if [[ -z "$local_img" && -f "$entry/contents/screenshot.png" ]]; then
                 local_img="$entry/contents/screenshot.png"
             fi
@@ -85,20 +81,22 @@ if [[ ${#WALLPAPER_PATHS[@]} -eq 0 ]]; then
     exit 0
 fi
 
-# 2. Configura il tema Rofi per la griglia
+# 2. Configura il tema Rofi
 THEME_FLAG=()
 if [[ -f "/etc/xdg/rofi/wallpaper.rasi" ]]; then
     THEME_FLAG=(-theme "/etc/xdg/rofi/wallpaper.rasi")
+elif [[ -f "$HOME/.config/rofi/wallpaper.rasi" ]]; then
+    THEME_FLAG=(-theme "$HOME/.config/rofi/wallpaper.rasi")
 fi
 
-# 3. Presenta la lista formattata con icone a Rofi
+# 3. Presenta la griglia a Rofi
 SELECTION_INDEX=$(
     for i in "${!WALLPAPER_NAMES[@]}"; do
         printf "%s\0icon\x1f%s\n" "${WALLPAPER_NAMES[$i]}" "${WALLPAPER_ICONS[$i]}"
     done | rofi -dmenu -i -format i -p "󰸉 Sfondi" "${THEME_FLAG[@]}"
 )
 
-# Se l'utente ha premuto ESC o annullato, esci silenziosamente
+# Se annullato con ESC
 if [[ -z "$SELECTION_INDEX" || "$SELECTION_INDEX" -lt 0 ]]; then
     exit 0
 fi
@@ -107,35 +105,86 @@ CHOSEN_NAME="${WALLPAPER_NAMES[$SELECTION_INDEX]}"
 CHOSEN_PATH="${WALLPAPER_PATHS[$SELECTION_INDEX]}"
 CHOSEN_ICON="${WALLPAPER_ICONS[$SELECTION_INDEX]}"
 
-# 4. Applica lo sfondo in KDE Plasma con transizione animata (Circle Grow)
-qdbus org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript "
-    var allDesktops = desktops();
-    for (var i = 0; i < allDesktops.length; i++) {
-        d = allDesktops[i];
-        d.wallpaperPlugin = 'org.utargon.circlewallpaper';
-        d.currentConfigGroup = Array('Wallpaper', 'org.utargon.circlewallpaper', 'General');
-        d.writeConfig('Image', 'file://${CHOSEN_PATH}');
-    }
-" 2>/dev/null || true
-
-# Sincronizza anche con il comando standard per aggiornare le impostazioni di sistema
+# 4. Applica lo sfondo in KDE Plasma con il metodo e l'animazione nativa di KDE
 if command -v plasma-apply-wallpaperimage &>/dev/null; then
-    (plasma-apply-wallpaperimage "$CHOSEN_PATH" &>/dev/null &) 2>/dev/null || true
+    plasma-apply-wallpaperimage "$CHOSEN_PATH"
+else
+    qdbus org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript "
+        var allDesktops = desktops();
+        for (var i = 0; i < allDesktops.length; i++) {
+            d = allDesktops[i];
+            d.wallpaperPlugin = 'org.kde.image';
+            d.currentConfigGroup = Array('Wallpaper', 'org.kde.image', 'General');
+            d.writeConfig('Image', 'file://${CHOSEN_PATH}');
+        }
+    " 2>/dev/null || true
 fi
 
-# 5. Notifica visiva di conferma
-notify-send "Sfondo Applicato" "$CHOSEN_NAME" -i "$CHOSEN_ICON" -t 3000
+# 5. Rileva il colore dominante e applica la variante di cartella Fluent corrispondente
+DETECTED_THEME=$(python3 - "$CHOSEN_PATH" << 'EOF' 2>/dev/null
+import sys, colorsys
+try:
+    from PIL import Image
+    im = Image.open(sys.argv[1]).convert('RGB')
+    im.thumbnail((48, 48))
+    pixels = list(im.getdata())
+    r = sum(p[0] for p in pixels) // len(pixels)
+    g = sum(p[1] for p in pixels) // len(pixels)
+    b = sum(p[2] for p in pixels) // len(pixels)
+    h, s, v = colorsys.rgb_to_hsv(r / 255.0, g / 255.0, b / 255.0)
+    deg = h * 360.0
 
-# 6. Generazione colori dinamici Material You stile Dusky (Matugen)
-# Aggiorna Kitty terminale (con reload live SIGUSR1) e stili GTK
-if command -v matugen &>/dev/null; then
-    (matugen image "$CHOSEN_PATH" &>/dev/null &) 2>/dev/null || true
+    if s < 0.15:
+        theme = "Fluent-grey-dark"
+    elif deg < 15 or deg >= 345:
+        theme = "Fluent-red-dark"
+    elif deg < 45:
+        theme = "Fluent-orange-dark"
+    elif deg < 70:
+        theme = "Fluent-yellow-dark"
+    elif deg < 165:
+        theme = "Fluent-green-dark"
+    elif deg < 200:
+        theme = "Fluent-teal-dark"
+    elif deg < 260:
+        theme = "Fluent-dark"
+    elif deg < 310:
+        theme = "Fluent-purple-dark"
+    else:
+        theme = "Fluent-pink-dark"
+    print(theme)
+except Exception:
+    print("Fluent-purple-dark")
+EOF
+)
+
+if [[ -z "$DETECTED_THEME" ]]; then
+    DETECTED_THEME="Fluent-purple-dark"
 fi
 
-# 7. Aggiornamento colori KDE Plasma (finestre, decorazioni e Plasma Panel Colorizer)
+# Applica il tema icone delle cartelle a KDE Plasma e GTK
+if command -v kwriteconfig6 &>/dev/null; then
+    kwriteconfig6 --file kdeglobals --group Icons --key Theme "$DETECTED_THEME"
+fi
+
+if command -v gsettings &>/dev/null; then
+    gsettings set org.gnome.desktop.interface icon-theme "$DETECTED_THEME" 2>/dev/null || true
+fi
+
+# Notifica KDE del cambio tema icone e pulisce cache
+qdbus org.kde.KGlobalSettings /KGlobalSettings org.kde.KGlobalSettings.notifyChange 1 0 2>/dev/null || true
+rm -f "$HOME/.cache/icon-cache.kcache" 2>/dev/null || true
+
+# 6. Aggiorna colori dinamici (kde-material-you-colors e matugen)
 if command -v kde-material-you-colors &>/dev/null; then
     (kde-material-you-colors --color "$CHOSEN_PATH" &>/dev/null &) 2>/dev/null || true
 fi
 
-exit 0
+if command -v matugen &>/dev/null; then
+    (matugen image "$CHOSEN_PATH" &>/dev/null &) 2>/dev/null || true
+fi
 
+# 7. Notifica visiva di conferma
+notify-send "Sfondo e Cartelle Aggiornati" "$CHOSEN_NAME ($DETECTED_THEME)" -i "$CHOSEN_ICON" -t 3000
+
+exit 0

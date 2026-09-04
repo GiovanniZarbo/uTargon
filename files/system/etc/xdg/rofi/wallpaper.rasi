@@ -8,9 +8,9 @@ configuration {
 }
 
 * {
-    bg-main:                    #1a1b26f2;
-    bg-input:                   #24283bf2;
-    bg-card:                    #24283b80;
+    bg-main:                    rgba(26, 27, 38, 0.95);
+    bg-input:                   rgba(36, 40, 59, 0.95);
+    bg-card:                    rgba(36, 40, 59, 0.50);
     bg-selected:                #7aa2f7;
     fg-main:                    #c0caf5;
     fg-muted:                   #565f89;
@@ -65,7 +65,6 @@ listview {
     cycle:                      true;
     dynamic:                    true;
     layout:                     vertical;
-    flow:                       horizontal;
     spacing:                    16px;
     scrollbar:                  false;
 }
@@ -97,4 +96,3 @@ element-text {
     text-color:                 inherit;
     font:                       "Sans 10";
 }
-

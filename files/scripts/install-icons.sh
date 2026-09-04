@@ -11,9 +11,7 @@ tar -xf /tmp/icone_temp/Fluent-icon-theme.tar.gz -C /tmp/icone_temp
 
 # 3. Usa lo script di installazione ufficiale del tema per generare
 #    tutte le varianti colore (blue, purple, pink, red, orange, yellow, green, teal, grey)
-#    direttamente nella cartella di sistema delle icone
 cd /tmp/icone_temp/Fluent-icon-theme-master
 ./install.sh -a -d /usr/share/icons -n Fluent
 
-# 4. Pulisce la cartella temporanea
 rm -rf /tmp/icone_temp

@@ -8,7 +8,7 @@ ColorScheme=TokyoNight
 Theme=Fluent-purple-dark
 
 [kdeglobals][KDE]
-widgetStyle=Darkly
+widgetStyle=Breeze
 
 [kwinrc][DesktopSwitcher]
 LayoutName=org.kde.breeze.desktop

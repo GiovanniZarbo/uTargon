@@ -8,3 +8,4 @@ _launch=Meta+Space,none,Rofi
 [rofi-wallpaper.desktop]
 _k_friendly_name=Selettore Sfondi
 _launch=Meta+W,none,Selettore Sfondi
+

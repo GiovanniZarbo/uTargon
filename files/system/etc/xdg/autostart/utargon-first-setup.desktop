@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=uTargon First Setup
+Comment=Inizializza le impostazioni predefinite per il nuovo utente
+Exec=/usr/bin/utargon-first-setup
+Icon=preferences-desktop-theme
+Terminal=false
+Type=Application
+Categories=Utility;
+StartupNotify=false
+X-KDE-autostart-phase=2
+
