@@ -1,14 +1,17 @@
 [kcminputrc][Mouse]
 cursorTheme=ArcDusk-cursors
+cursorSize=24
 
 [kdeglobals][General]
 ColorScheme=TokyoNight
+accentColorFromWallpaper=true
 
 [kdeglobals][Icons]
 Theme=Fluent-purple-dark
 
 [kdeglobals][KDE]
 widgetStyle=Breeze
+ShowDeleteCommand=false
 
 [kwinrc][DesktopSwitcher]
 LayoutName=org.kde.breeze.desktop
@@ -19,6 +22,11 @@ LayoutName=org.kde.breeze.desktop
 [kwinrc][org.kde.kdecoration2]
 library=org.kde.kwin.aurorae.v2
 theme=__aurorae__svg__Utterly-Round-Dark-Solid
+BorderSize=Tiny
+BorderSizeAuto=false
+ButtonsOnLeft=
+ButtonsOnRight=IAX
+CloseOnDoubleClickOnMenu=false
 
 [plasmarc][Theme]
 name=default

@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 
 # utargon-first-setup - Inizializzazione automatica al primo login per nuovi utenti
-# Applica lo sfondo di default, decorazioni finestre, scorciatoie Super+Spazio / Super+W,
-# stile Brezza adattivo e aggiunge Plasma Panel Colorizer con il preset Skeuomorphic 2.
+# Applica il look-and-feel lain-dark (l'unica fonte dell'aspetto: schema colori,
+# tema icone, cursore, decorazioni finestre e stile widget), lo sfondo di default,
+# le scorciatoie Super+Spazio / Super+W e aggiunge Plasma Panel Colorizer
+# con il preset Skeuomorphic 2.
 
 INIT_FLAG="$HOME/.config/utargon-initialized"
 
@@ -31,13 +33,20 @@ while [[ $WAITED -lt 20 ]]; do
 done
 sleep 4
 
-# 1. Applica lo sfondo di default se presente
+# 1. Applica il look-and-feel lain-dark: il suo file "defaults" imposta tutto
+#    l'aspetto (TokyoNight, Fluent-purple-dark, ArcDusk-cursors, Utterly-Round,
+#    stile Breeze) senza resettare il layout del desktop
+if command -v plasma-apply-lookandfeel &>/dev/null; then
+    plasma-apply-lookandfeel lain-dark 2>/dev/null || true
+fi
+
+# 2. Applica lo sfondo di default se presente
 DEFAULT_WALLPAPER="/usr/share/wallpapers/LainDark/contents/images/2560x1440.jpg"
 if [[ -f "$DEFAULT_WALLPAPER" ]] && command -v plasma-apply-wallpaperimage &>/dev/null; then
     plasma-apply-wallpaperimage "$DEFAULT_WALLPAPER" 2>/dev/null || true
 fi
 
-# 2. Genera palette colori dinamica con kde-material-you-colors
+# 3. Genera palette colori dinamica con kde-material-you-colors
 if command -v kde-material-you-colors &>/dev/null && [[ -f "$DEFAULT_WALLPAPER" ]]; then
     (kde-material-you-colors --file "$DEFAULT_WALLPAPER" &>/dev/null &) || true
 fi
@@ -60,32 +69,10 @@ if [[ -n "$QDBUS_BIN" ]]; then
     " 2>/dev/null || true
 fi
 
-# Applica cursore ArcDusk
-if command -v plasma-apply-cursortheme &>/dev/null; then
-    plasma-apply-cursortheme ArcDusk-cursors 2>/dev/null || true
-fi
-
+# 4. Scorciatoie globali: le uniche impostazioni scritte a livello utente
+#    (il seed in /etc/skel copre i nuovi utenti, qui si coprono gli utenti esistenti)
 if command -v kwriteconfig6 &>/dev/null; then
-    # Imposta esplicitamente il cursore nei config utente (kcminputrc e kdeglobals)
-    kwriteconfig6 --file kcminputrc --group Mouse --key cursorTheme "ArcDusk-cursors"
-    kwriteconfig6 --file kcminputrc --group Mouse --key cursorSize "24"
-    kwriteconfig6 --file kdeglobals --group Mouse --key cursorTheme "ArcDusk-cursors"
-    kwriteconfig6 --file kdeglobals --group Mouse --key cursorSize "24"
-    
-    # Stile plasma e widget
-    kwriteconfig6 --file kdeglobals --group Icons --key Theme "Fluent-purple-dark"
-    kwriteconfig6 --file kdeglobals --group KDE --key widgetStyle "Breeze"
-    kwriteconfig6 --file kdeglobals --group General --key accentColorFromWallpaper "true"
-    kwriteconfig6 --file plasmarc --group Theme --key name "default"
-
-    # Decorazione finestre Utterly-Round-Dark-Solid (a destra e Tiny)
-    kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key library "org.kde.kwin.aurorae.v2"
-    kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key theme "__aurorae__svg__Utterly-Round-Dark-Solid"
-    kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key BorderSize "Tiny"
-    kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key ButtonsOnLeft ""
-    kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key ButtonsOnRight "IAX"
-
-    # Scorciatoie: Disattiva Overview su Meta+W per evitare conflitti
+    # Disattiva Overview su Meta+W per evitare conflitti
     kwriteconfig6 --file kglobalshortcutsrc --group kwin --key "Overview" "none,Meta+W,Toggle Overview"
 
     # Scorciatoia Super+Spazio per Rofi
@@ -103,7 +90,8 @@ if [[ -n "$QDBUS_BIN" ]]; then
     "$QDBUS_BIN" org.kde.KGlobalSettings /KGlobalSettings org.kde.KGlobalSettings.notifyChange 1 0 2>/dev/null || true
 fi
 
-# 3. Aggiunge Plasma Panel Colorizer al pannello di default se non presente e applica Skeuomorphic 2
+# 5. Aggiunge Plasma Panel Colorizer al pannello di default se non presente
+#    e applica il preset Skeuomorphic 2 (incluso nel pacchetto del plasmoid)
 if [[ -n "$QDBUS_BIN" ]]; then
     "$QDBUS_BIN" org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript '
         var allPanels = panels();
@@ -128,7 +116,7 @@ if [[ -n "$QDBUS_BIN" ]]; then
     ' 2>/dev/null || true
 fi
 
-# 4. Assicura che i template Matugen vengano generati se matugen è installato
+# 6. Assicura che i template Matugen vengano generati se matugen è installato
 if command -v matugen &>/dev/null && [[ -f "$DEFAULT_WALLPAPER" ]]; then
     (matugen image "$DEFAULT_WALLPAPER" 2>/dev/null &) || true
 fi
@@ -137,4 +125,3 @@ fi
 touch "$INIT_FLAG"
 
 exit 0
-

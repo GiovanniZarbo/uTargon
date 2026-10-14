@@ -1,11 +1,4 @@
-[Icons]
-Theme=Fluent-purple-dark
-
-[Mouse]
-cursorTheme=ArcDusk-cursors
-cursorSize=24
-
-[General]
-ColorScheme=TokyoNight
-accentColorFromWallpaper=true
-
+[KDE]
+lookAndFeelPackage=lain-dark
+defaultLightLookAndFeel=lain-dark
+defaultDarkLookAndFeel=lain-dark
