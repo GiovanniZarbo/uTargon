@@ -23,14 +23,22 @@ elif command -v qdbus-qt6 &>/dev/null; then
 fi
 
 # Attendi che plasmashell e kwin siano attivi (massimo 20 secondi)
+DESKTOP_UP=0
 WAITED=0
 while [[ $WAITED -lt 20 ]]; do
     if [[ -n "$QDBUS_BIN" ]] && "$QDBUS_BIN" org.kde.plasmashell /PlasmaShell &>/dev/null; then
+        DESKTOP_UP=1
         break
     fi
     sleep 1
     ((WAITED++))
 done
+
+# Desktop mai partito: esce senza scrivere il flag di inizializzazione,
+# così l'autostart riprova al login successivo (il setup è idempotente)
+if [[ $DESKTOP_UP -eq 0 ]]; then
+    exit 0
+fi
 sleep 4
 
 # 1. Applica il look-and-feel lain-dark: il suo file "defaults" imposta tutto

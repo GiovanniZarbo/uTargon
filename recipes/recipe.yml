@@ -42,11 +42,8 @@ modules:
         - firefox
         - firefox-langpacks # also remove firefox dependency (not required for all packages, this is a special case)
 
-  - type: script
-    scripts:
-      - install-icons.sh
-      - install-cursors.sh
-      - fix-permissions.sh
+  - type: install-icons
+  - type: install-cursors
 
   - type: default-flatpaks
     configurations:
