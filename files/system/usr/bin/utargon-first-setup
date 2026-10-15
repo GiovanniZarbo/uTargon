@@ -41,14 +41,11 @@ if command -v plasma-apply-lookandfeel &>/dev/null; then
 fi
 
 # 2. Applica lo sfondo di default se presente
+#    (i colori dinamici li genera il demone kde-material-you-colors in autostart,
+#    che rileva da solo il cambio di wallpaper)
 DEFAULT_WALLPAPER="/usr/share/wallpapers/LainDark/contents/images/2560x1440.jpg"
 if [[ -f "$DEFAULT_WALLPAPER" ]] && command -v plasma-apply-wallpaperimage &>/dev/null; then
     plasma-apply-wallpaperimage "$DEFAULT_WALLPAPER" 2>/dev/null || true
-fi
-
-# 3. Genera palette colori dinamica con kde-material-you-colors
-if command -v kde-material-you-colors &>/dev/null && [[ -f "$DEFAULT_WALLPAPER" ]]; then
-    (kde-material-you-colors --file "$DEFAULT_WALLPAPER" &>/dev/null &) || true
 fi
 
 # Applica icona kickoff a tema Lain (sostituisce icona Windows 11 di Fluent)
@@ -69,7 +66,7 @@ if [[ -n "$QDBUS_BIN" ]]; then
     " 2>/dev/null || true
 fi
 
-# 4. Scorciatoie globali: le uniche impostazioni scritte a livello utente
+# 3. Scorciatoie globali: le uniche impostazioni scritte a livello utente
 #    (il seed in /etc/skel copre i nuovi utenti, qui si coprono gli utenti esistenti)
 if command -v kwriteconfig6 &>/dev/null; then
     # Disattiva Overview su Meta+W per evitare conflitti
@@ -90,7 +87,7 @@ if [[ -n "$QDBUS_BIN" ]]; then
     "$QDBUS_BIN" org.kde.KGlobalSettings /KGlobalSettings org.kde.KGlobalSettings.notifyChange 1 0 2>/dev/null || true
 fi
 
-# 5. Aggiunge Plasma Panel Colorizer al pannello di default se non presente
+# 4. Aggiunge Plasma Panel Colorizer al pannello di default se non presente
 #    e applica il preset Skeuomorphic 2 (incluso nel pacchetto del plasmoid)
 if [[ -n "$QDBUS_BIN" ]]; then
     "$QDBUS_BIN" org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript '
@@ -116,7 +113,7 @@ if [[ -n "$QDBUS_BIN" ]]; then
     ' 2>/dev/null || true
 fi
 
-# 6. Assicura che i template Matugen vengano generati se matugen è installato
+# 5. Assicura che i template Matugen vengano generati se matugen è installato
 if command -v matugen &>/dev/null && [[ -f "$DEFAULT_WALLPAPER" ]]; then
     (matugen image "$DEFAULT_WALLPAPER" 2>/dev/null &) || true
 fi
