@@ -46,6 +46,8 @@ modules:
     source: local
   - type: install-cursors
     source: local
+  - type: install-plasmoids
+    source: local
 
   - type: default-flatpaks
     configurations:

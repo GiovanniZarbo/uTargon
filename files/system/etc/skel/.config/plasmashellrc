@@ -1,0 +1,12 @@
+[PlasmaViews][Panel 165]
+alignment=132
+floating=1
+panelLengthMode=2
+panelOpacity=0
+panelVisibility=2
+
+[PlasmaViews][Panel 165][Defaults]
+maxLength=863
+minLength=683
+offset=0
+thickness=46

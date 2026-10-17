@@ -1,0 +1,3 @@
+name: install-plasmoids
+description: |
+  Installa plasmoid QML-only prendendo l'ultima release GitHub a ogni build (nessun pin)

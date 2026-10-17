@@ -96,30 +96,30 @@ if [[ -n "$QDBUS_BIN" ]]; then
 fi
 
 # 4. Aggiunge Plasma Panel Colorizer al pannello di default se non presente
-#    e applica il preset Skeuomorphic 2 (incluso nel pacchetto del plasmoid)
-if [[ -n "$QDBUS_BIN" ]]; then
-    "$QDBUS_BIN" org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript '
-        var allPanels = panels();
-        for (var i = 0; i < allPanels.length; i++) {
-            var p = allPanels[i];
-            var widgets = p.widgets();
-            var hasColorizer = false;
-            for (var j = 0; j < widgets.length; j++) {
-                if (widgets[j].type === "luisbocanegra.panel.colorizer") {
-                    hasColorizer = true;
-                    break;
-                }
-            }
-            if (!hasColorizer) {
-                var widget = p.addWidget("luisbocanegra.panel.colorizer");
-                widget.currentConfigGroup = ["General"];
-                widget.writeConfig("lastPreset", "/usr/share/plasma/plasmoids/luisbocanegra.panel.colorizer/contents/ui/presets/Skeuomorphic 2");
-                widget.writeConfig("preset", "Skeuomorphic 2");
-                widget.reloadConfig();
-            }
-        }
-    ' 2>/dev/null || true
-fi
+#    e applica il preset Skeuomorphic 2 (incluso nel pacchetto del plasmoid) TEMPORANEAMENTE DISABILITATO             !!(>GUARDAMI<)!!
+# if [[ -n "$QDBUS_BIN" ]]; then
+    # "$QDBUS_BIN" org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript '
+        # var allPanels = panels();
+        # for (var i = 0; i < allPanels.length; i++) {
+            # var p = allPanels[i];
+            # var widgets = p.widgets();
+            # var hasColorizer = false;
+            # for (var j = 0; j < widgets.length; j++) {
+                # if (widgets[j].type === "luisbocanegra.panel.colorizer") {
+                    # hasColorizer = true;
+                    # break;
+                # }
+            # }
+            # if (!hasColorizer) {
+                # var widget = p.addWidget("luisbocanegra.panel.colorizer");
+                # widget.currentConfigGroup = ["General"];
+                # widget.writeConfig("lastPreset", "/usr/share/plasma/plasmoids/luisbocanegra.panel.colorizer/contents/ui/presets/Skeuomorphic 2");
+                # widget.writeConfig("preset", "Skeuomorphic 2");
+                # widget.reloadConfig();
+            # }
+        # }
+    # ' 2>/dev/null || true
+# fi
 
 # 5. Assicura che i template Matugen vengano generati se matugen è installato
 if command -v matugen &>/dev/null && [[ -f "$DEFAULT_WALLPAPER" ]]; then
