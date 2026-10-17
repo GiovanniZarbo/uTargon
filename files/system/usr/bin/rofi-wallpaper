@@ -159,6 +159,14 @@ fi
 
 # 6. Rigenera la palette dinamica con matugen (kitty, GTK, variante Fluent)
 if command -v matugen &>/dev/null; then
+    # Skel non viene copiato nella home di utenti esistenti al rebase: senza
+    # config matugen parte con quella vuota di default (zero template) e le
+    # icone non cambiano. Idempotente: per i nuovi utenti è già tutto presente.
+    if [[ ! -f "$HOME/.config/matugen/config.toml" ]]; then
+        mkdir -p "$HOME/.config/matugen/templates"
+        cp /etc/skel/.config/matugen/config.toml "$HOME/.config/matugen/" 2>/dev/null || true
+        cp /etc/skel/.config/matugen/templates/* "$HOME/.config/matugen/templates/" 2>/dev/null || true
+    fi
     (matugen image "$CHOSEN_PATH" &>/dev/null &) 2>/dev/null || true
 fi
 

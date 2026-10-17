@@ -123,6 +123,13 @@ fi
 
 # 5. Assicura che i template Matugen vengano generati se matugen è installato
 if command -v matugen &>/dev/null && [[ -f "$DEFAULT_WALLPAPER" ]]; then
+    # Utenti esistenti (rebase): la config di skel non è nella home e, senza
+    # config, matugen usa quella vuota di default senza generare nulla
+    if [[ ! -f "$HOME/.config/matugen/config.toml" ]]; then
+        mkdir -p "$HOME/.config/matugen/templates"
+        cp /etc/skel/.config/matugen/config.toml "$HOME/.config/matugen/" 2>/dev/null || true
+        cp /etc/skel/.config/matugen/templates/* "$HOME/.config/matugen/templates/" 2>/dev/null || true
+    fi
     (matugen image "$DEFAULT_WALLPAPER" 2>/dev/null &) || true
 fi
 
