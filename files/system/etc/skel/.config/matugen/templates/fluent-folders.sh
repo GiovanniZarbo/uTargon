@@ -1,44 +1,31 @@
 #!/usr/bin/env bash
-
-# Script generato da Matugen per impostare il tema icone Fluent
-# con la variante di colore più vicina al wallpaper corrente
+# Generato da Matugen: applica la variante Fluent più vicina al wallpaper
+# e la notifica alle app già aperte (Dolphin, plasmashell, GTK)
 
 COLOR="{{closest_color}}"
 
 case "$COLOR" in
-    blue)
-        THEME="Fluent-dark"
-        ;;
-    purple|pink|red|orange|yellow|green|teal|grey)
-        THEME="Fluent-${COLOR}-dark"
-        ;;
-    *)
-        THEME="Fluent-dark"
-        ;;
+    purple|pink|red|orange|yellow|green|teal|grey) THEME="Fluent-${COLOR}-dark" ;;
+    *) THEME="Fluent-dark" ;;
 esac
 
-# 1. Imposta il tema icone in KDE Plasma (Dolphin, Desktop, App KDE)
-if command -v kwriteconfig6 &>/dev/null; then
+# 1. KDE: plasma-changeicons scrive kdeglobals, cancella la cache e invia
+#    iconChanged su D-Bus -> le app aperte ricaricano le icone subito.
+#    NON scrivere prima kdeglobals: se il tema risulta già impostato, il tool
+#    non invia la notifica.
+if [[ -x /usr/libexec/plasma-changeicons ]]; then
+    /usr/libexec/plasma-changeicons "$THEME"
+else
+    # Ripiego manuale: stesso effetto del tool
     kwriteconfig6 --file kdeglobals --group Icons --key Theme "$THEME"
+    rm -f "$HOME/.cache/icon-cache.kcache"
+    for group in 0 1 2 3 4 5; do   # tutti i gruppi di KIconLoader
+        dbus-send --session --type=signal /KIconLoader \
+            org.kde.KIconLoader.iconChanged "int32:$group"
+    done
 fi
 
-# 2. Imposta il tema icone per le applicazioni GTK
+# 2. App GTK (si aggiornano da sole quando cambia la chiave)
 if command -v gsettings &>/dev/null; then
     gsettings set org.gnome.desktop.interface icon-theme "$THEME" 2>/dev/null || true
-fi
-
-# 3. Pulisce la cache icone e notifica KDE del cambio per il reload immediato
-rm -f "$HOME/.cache/icon-cache.kcache" 2>/dev/null || true
-
-QDBUS_BIN=""
-if command -v qdbus6 &>/dev/null; then
-    QDBUS_BIN="qdbus6"
-elif command -v qdbus &>/dev/null; then
-    QDBUS_BIN="qdbus"
-elif command -v qdbus-qt6 &>/dev/null; then
-    QDBUS_BIN="qdbus-qt6"
-fi
-
-if [[ -n "$QDBUS_BIN" ]]; then
-    "$QDBUS_BIN" org.kde.KGlobalSettings /KGlobalSettings org.kde.KGlobalSettings.notifyChange 1 0 2>/dev/null || true
 fi
